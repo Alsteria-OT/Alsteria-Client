@@ -176,7 +176,7 @@ void GameConfig::loadMapNode(const OTMLNodePtr& mainNode) {
             m_mapMaxZ = node->value<int>();
         else if (node->tag() == "sea-floor")
             m_mapSeaFloor = node->value<int>();
-        else if (node->tag() == "sky-floor")
+        else if (node->tag() == "sky-floor") // 3-band floor model (see GameConfig)
             m_mapSkyFloor = node->value<int>();
         else if (node->tag() == "underground-floor")
             m_mapUndergroundFloorRange = node->value<int>();
