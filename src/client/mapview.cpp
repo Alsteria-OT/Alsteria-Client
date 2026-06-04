@@ -835,12 +835,12 @@ uint8_t MapView::calcFirstVisibleFloor(const bool checkLimitsFloorsView) const
     } else {
         // this could happens if the player is not known yet
         if (m_posInfo.camera.isValid()) {
-            // if nothing is limiting the view, the first visible floor is 0
-            uint8_t firstFloor = 0;
+            // topmost visible floor from the 3-band model (sky / surface / underground)
+            uint8_t firstFloor = g_gameConfig.getFloorViewMinZ(m_posInfo.camera.z);
 
-            // limits to underground floors while under sea level
+            // when underground, never render up past the first underground floor
             if (m_posInfo.camera.z > g_gameConfig.getMapSeaFloor())
-                firstFloor = std::max<uint8_t >(m_posInfo.camera.z - g_gameConfig.getMapAwareUndergroundFloorRange(), g_gameConfig.getMapUndergroundFloorRange());
+                firstFloor = std::max<uint8_t >(firstFloor, g_gameConfig.getMapUndergroundFloorRange());
 
             // loop in 3x3 tiles around the camera
             for (int ix = -1; checkLimitsFloorsView && ix <= 1 && firstFloor < m_posInfo.camera.z; ++ix) {
@@ -889,11 +889,8 @@ uint8_t MapView::calcLastVisibleFloor() const
 
     // this could happen if the player is not known yet
     if (m_posInfo.camera.isValid()) {
-        // view only underground floors when below sea level
-        if (m_posInfo.camera.z > g_gameConfig.getMapSeaFloor())
-            z = m_posInfo.camera.z + g_gameConfig.getMapAwareUndergroundFloorRange();
-        else
-            z = g_gameConfig.getMapSeaFloor();
+        // bottommost visible floor from the 3-band model (sky / surface / underground)
+        z = g_gameConfig.getFloorViewMaxZ(m_posInfo.camera.z);
     }
 
     if (m_lockedFirstVisibleFloor != -1)

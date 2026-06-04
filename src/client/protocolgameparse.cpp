@@ -3853,14 +3853,18 @@ void ProtocolGame::setMapDescription(const InputMessagePtr& msg, const int x, co
     int endz;
     int zstep;
 
-    if (z > g_gameConfig.getMapSeaFloor()) {
-        startz = z - g_gameConfig.getMapAwareUndergroundFloorRange();
-        endz = std::min<int>(z + g_gameConfig.getMapAwareUndergroundFloorRange(), g_gameConfig.getMapMaxZ());
-        zstep = 1;
-    } else {
+    // 3-band floor model — MUST match the server's getFloorIterationRange
+    // (map_const.hpp) exactly, or the streamed tile bytes desync.
+    if (g_gameConfig.isMapSurfaceBand(z)) {
+        // surface: render the full stack, ground -> sky
         startz = g_gameConfig.getMapSeaFloor();
-        endz = 0;
+        endz = g_gameConfig.getMapSkyFloor();
         zstep = -1;
+    } else {
+        // sky or underground: windowed, top -> bottom
+        startz = g_gameConfig.getFloorViewMinZ(z);
+        endz = g_gameConfig.getFloorViewMaxZ(z);
+        zstep = 1;
     }
 
     int skip = 0;

@@ -6,9 +6,10 @@ game
   map
     viewport: 8 6
     extended-view-ui: false
-    max-z: 15
-    sea-floor: 7
-    underground-floor: 8
+    max-z: 99
+    sea-floor: 69
+    sky-floor: 39
+    underground-floor: 70
     aware-underground-floor-range: 2
 
   tile

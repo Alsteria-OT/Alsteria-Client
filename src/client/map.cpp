@@ -813,18 +813,13 @@ void Map::resetAwareRange() {
 
 uint8_t Map::getFirstAwareFloor() const
 {
-    if (m_centralPosition.z <= g_gameConfig.getMapSeaFloor())
-        return 0;
-
-    return m_centralPosition.z - g_gameConfig.getMapAwareUndergroundFloorRange();
+    // 3-band floor model (mirror of server map_const.hpp). See GameConfig.
+    return g_gameConfig.getFloorViewMinZ(m_centralPosition.z);
 }
 
 uint8_t Map::getLastAwareFloor() const
 {
-    if (m_centralPosition.z <= g_gameConfig.getMapSeaFloor())
-        return g_gameConfig.getMapSeaFloor();
-
-    return std::min<uint8_t >(m_centralPosition.z + g_gameConfig.getMapAwareUndergroundFloorRange(), g_gameConfig.getMapMaxZ());
+    return g_gameConfig.getFloorViewMaxZ(m_centralPosition.z);
 }
 
 std::tuple<std::vector<Otc::Direction>, Otc::PathFindResult> Map::findPath(const Position& startPos, const Position& goalPos, const int maxComplexity, const int flags)

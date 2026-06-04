@@ -43,8 +43,25 @@ public:
     Size getMapViewPort() const { return m_mapViewPort; }
     uint8_t getMapMaxZ() const { return m_mapMaxZ; }
     uint8_t getMapSeaFloor() const { return m_mapSeaFloor; }
+    uint8_t getMapSkyFloor() const { return m_mapSkyFloor; }
     uint8_t getMapUndergroundFloorRange() const { return m_mapUndergroundFloorRange; }
     uint8_t getMapAwareUndergroundFloorRange() const { return m_mapAwareUndergroundFloorRange; }
+
+    // 3-band floor view model — mirror of the server's map_const.hpp helpers.
+    // z grows downward. Surface (sky-floor..sea-floor) shows the full stack;
+    // sky (z < sky-floor) and underground (z > sea-floor) use a +/- aware window.
+    // Default sky-floor = 0 collapses this back to vanilla 2-band behavior.
+    bool isMapSurfaceBand(int z) const { return z <= m_mapSeaFloor && z >= m_mapSkyFloor; }
+    uint8_t getFloorViewMinZ(int z) const {
+        if (isMapSurfaceBand(z)) return m_mapSkyFloor;
+        const int v = z - m_mapAwareUndergroundFloorRange;
+        return static_cast<uint8_t>(v < 0 ? 0 : v);
+    }
+    uint8_t getFloorViewMaxZ(int z) const {
+        if (isMapSurfaceBand(z)) return m_mapSeaFloor;
+        const int v = z + m_mapAwareUndergroundFloorRange;
+        return static_cast<uint8_t>(v > m_mapMaxZ ? m_mapMaxZ : v);
+    }
     bool isExtendedViewUI() const { return m_extendedViewUI; }
 
     uint8_t getTileMaxElevation() const { return m_tileMaxElevation; }
@@ -103,6 +120,7 @@ private:
     Size m_mapViewPort{ 8,6 };
     uint8_t m_mapMaxZ{ 15 };
     uint8_t m_mapSeaFloor{ 7 };
+    uint8_t m_mapSkyFloor{ 0 }; // 0 = vanilla 2-band; >0 enables the sky band
     uint8_t m_mapUndergroundFloorRange{ 2 };
     uint8_t m_mapAwareUndergroundFloorRange{ 2 };
     bool m_extendedViewUI{ false };
