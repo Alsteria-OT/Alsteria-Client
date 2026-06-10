@@ -462,7 +462,13 @@ TEST(MapSpectators, CreatureOrderingIsDeterministic)
 
 TEST(MapSpectators, MultiFloorRangeIncludesVerticalNeighbors)
 {
-    const Position center(190, 290, 8);
+    // Under the 3-band floor model, multiFloor awareness spans the camera's
+    // FULL band, not a fixed ±window, and never crosses a band boundary
+    // (mirrors the server's getFloorViewRange streaming). With the default
+    // config (sea-floor 7), z=8 sits on the surface/underground boundary, so a
+    // neighbor at z=7 would fall in a different band. Center mid-surface-band
+    // (z=5) so both vertical neighbors (z=4, z=6) are co-banded and aware.
+    const Position center(190, 290, 5);
 
     Map map;
     map.m_floors.resize(g_gameConfig.getMapMaxZ() + 1);
