@@ -842,8 +842,13 @@ uint8_t MapView::calcFirstVisibleFloor(const bool checkLimitsFloorsView) const
             if (m_posInfo.camera.z > g_gameConfig.getMapSeaFloor())
                 firstFloor = std::max<uint8_t >(firstFloor, g_gameConfig.getMapUndergroundFloorRange());
 
+            // Roof/look-through limiting only applies on the SURFACE band — the
+            // sky and underground bands always render their FULL floor range so
+            // each of the 3 sections shows all of its floors top-to-bottom.
+            const bool limitLookThrough = checkLimitsFloorsView && g_gameConfig.isMapSurfaceBand(m_posInfo.camera.z);
+
             // loop in 3x3 tiles around the camera
-            for (int ix = -1; checkLimitsFloorsView && ix <= 1 && firstFloor < m_posInfo.camera.z; ++ix) {
+            for (int ix = -1; limitLookThrough && ix <= 1 && firstFloor < m_posInfo.camera.z; ++ix) {
                 for (int iy = -1; iy <= 1 && firstFloor < m_posInfo.camera.z; ++iy) {
                     const auto& pos = m_posInfo.camera.translated(ix, iy);
                     const bool isLookPossible = g_map.isLookPossible(pos);

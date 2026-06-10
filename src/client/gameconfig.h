@@ -48,19 +48,22 @@ public:
     uint8_t getMapAwareUndergroundFloorRange() const { return m_mapAwareUndergroundFloorRange; }
 
     // 3-band floor view model — mirror of the server's map_const.hpp helpers.
-    // z grows downward. Surface (sky-floor..sea-floor) shows the full stack;
-    // sky (z < sky-floor) and underground (z > sea-floor) use a +/- aware window.
+    // z grows downward. Each band renders its FULL range of floors (the camera's
+    // band is shown top-to-bottom, roof/look-through limiting still applies):
+    //   • sky        (z < sky-floor)            → [0 .. sky-floor-1]
+    //   • surface    (sky-floor .. sea-floor)   → [sky-floor .. sea-floor]
+    //   • underground(z > sea-floor)            → [sea-floor+1 .. max-z]
     // Default sky-floor = 0 collapses this back to vanilla 2-band behavior.
     bool isMapSurfaceBand(int z) const { return z <= m_mapSeaFloor && z >= m_mapSkyFloor; }
     uint8_t getFloorViewMinZ(int z) const {
-        if (isMapSurfaceBand(z)) return m_mapSkyFloor;
-        const int v = z - m_mapAwareUndergroundFloorRange;
-        return static_cast<uint8_t>(v < 0 ? 0 : v);
+        if (isMapSurfaceBand(z)) return m_mapSkyFloor;                       // surface band top
+        if (z < m_mapSkyFloor)   return 0;                                   // sky band top
+        return static_cast<uint8_t>(m_mapSeaFloor + 1);                      // underground band top
     }
     uint8_t getFloorViewMaxZ(int z) const {
-        if (isMapSurfaceBand(z)) return m_mapSeaFloor;
-        const int v = z + m_mapAwareUndergroundFloorRange;
-        return static_cast<uint8_t>(v > m_mapMaxZ ? m_mapMaxZ : v);
+        if (isMapSurfaceBand(z)) return m_mapSeaFloor;                       // surface band bottom
+        if (z < m_mapSkyFloor)   return static_cast<uint8_t>(m_mapSkyFloor - 1); // sky band bottom
+        return m_mapMaxZ;                                                    // underground band bottom
     }
     bool isExtendedViewUI() const { return m_extendedViewUI; }
 
