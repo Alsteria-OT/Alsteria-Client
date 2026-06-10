@@ -47,6 +47,13 @@ public:
     uint8_t getMapUndergroundFloorRange() const { return m_mapUndergroundFloorRange; }
     uint8_t getMapAwareUndergroundFloorRange() const { return m_mapAwareUndergroundFloorRange; }
 
+    // Runtime overrides for the 3-band floor model, applied from the server's
+    // per-map floor config (sent via extended opcode). Keeps client and server
+    // in lock-step when a map embeds a custom floor configuration in its OTBM.
+    void setMapMaxZ(uint8_t z) { m_mapMaxZ = z; }
+    void setMapSeaFloor(uint8_t z) { m_mapSeaFloor = z; }
+    void setMapSkyFloor(uint8_t z) { m_mapSkyFloor = z; }
+
     // 3-band floor view model — mirror of the server's map_const.hpp helpers.
     // z grows downward. Each band renders its FULL range of floors (the camera's
     // band is shown top-to-bottom, roof/look-through limiting still applies):

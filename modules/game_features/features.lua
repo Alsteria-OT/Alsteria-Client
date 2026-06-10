@@ -287,6 +287,25 @@ controller:registerEvents(g_game, {
             g_game.enableFeature(GameLevelPercentU16)
             g_game.enableFeature(GameTaskboard)
         end
-        
+
     end
 })
+
+-- Per-map 3-band floor model. The server sends its active floor config (which may
+-- be overridden per-map by the OTBM header) so the client mirrors the exact band
+-- boundaries used for streaming. Payload is a compact "maxZ,seaFloor,skyFloor".
+controller:registerExtendedOpcode(ExtendedIds.FloorConfig, function(protocol, opcode, buffer)
+    local parts = buffer:split(',')
+    local maxZ = tonumber(parts[1])
+    local seaFloor = tonumber(parts[2])
+    local skyFloor = tonumber(parts[3])
+    if not maxZ or not seaFloor or not skyFloor then
+        g_logger.warning('[FloorConfig] malformed payload: ' .. tostring(buffer))
+        return
+    end
+
+    g_gameConfig.setMapMaxZ(maxZ)
+    g_gameConfig.setMapSeaFloor(seaFloor)
+    g_gameConfig.setMapSkyFloor(skyFloor)
+    g_logger.info(string.format('[FloorConfig] applied maxZ=%d seaFloor=%d skyFloor=%d', maxZ, seaFloor, skyFloor))
+end)

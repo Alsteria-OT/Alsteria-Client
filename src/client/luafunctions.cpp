@@ -448,6 +448,15 @@ void Client::registerLuaFunctions()
 
     g_lua.bindSingletonFunction("g_gameConfig", "setLastSupportedVersion", &GameConfig::setLastSupportedVersion, &g_gameConfig);
 
+    // Per-map 3-band floor model — getters expose current values, setters let the
+    // extended-opcode handler apply the server's per-map floor config at runtime.
+    g_lua.bindSingletonFunction("g_gameConfig", "getMapMaxZ", &GameConfig::getMapMaxZ, &g_gameConfig);
+    g_lua.bindSingletonFunction("g_gameConfig", "getMapSeaFloor", &GameConfig::getMapSeaFloor, &g_gameConfig);
+    g_lua.bindSingletonFunction("g_gameConfig", "getMapSkyFloor", &GameConfig::getMapSkyFloor, &g_gameConfig);
+    g_lua.bindSingletonFunction("g_gameConfig", "setMapMaxZ", &GameConfig::setMapMaxZ, &g_gameConfig);
+    g_lua.bindSingletonFunction("g_gameConfig", "setMapSeaFloor", &GameConfig::setMapSeaFloor, &g_gameConfig);
+    g_lua.bindSingletonFunction("g_gameConfig", "setMapSkyFloor", &GameConfig::setMapSkyFloor, &g_gameConfig);
+
     g_lua.registerSingletonClass("g_client");
     g_lua.bindSingletonFunction("g_client", "setEffectAlpha", &Client::setEffectAlpha, &g_client);
     g_lua.bindSingletonFunction("g_client", "setOwnSpellEffectAlpha", &Client::setOwnSpellEffectAlpha, &g_client);
